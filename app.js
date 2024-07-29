@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const productsRouter = require('./routers/products');
 const cors = require('cors')
 require('dotenv/config');
 
@@ -18,7 +17,10 @@ app.use(bodyParser.json())
 app.use(morgan('tiny'));
 
 //Routers
+const productsRouter = require('./routers/products');
+const categoriesRoutes = require('./routers/categories');
 app.use(`${api}/products`, productsRouter);
+app.use(`${api}/categories`, categoriesRoutes);
 
 mongoose.connect(dbConne,{
     useNewUrlParser : true,

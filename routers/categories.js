@@ -13,13 +13,19 @@ router.get(`/`,async (req,res)=>{
 })
 
 router.post(`/`,async(req,res)=>{
-    const category = new Category({
+    let category = new Category({
         name: req.body.name,
         color: req.body.color,
         icon: req.body.icon,
         image: req.body.image,
     })
     category = await category.save();
+
+    if(!category)
+    return res.status(404).send('Category cannot be saved');
+
+    res.send(category);
+
     // category.save().then((createdcategory =>{
     //     res.status(201).json(createdcategory)
     // })).catch((err)=>{
