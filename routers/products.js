@@ -27,7 +27,6 @@ router.get(`/:id`,async (req,res)=>{
 
     //to populate the category details also
     const product = await Product.findById(req.params.id).populate('category');
-    //const product = await Product.findById(req.params.id).populate({path : 'Category' , strictPopulate: false });
 
     if(!product){
         return res.status(500).json({
@@ -37,6 +36,49 @@ router.get(`/:id`,async (req,res)=>{
     }
 
     return res.status(200).send(product)
+})
+
+router.put(`/:id`,async (req,res)=>{
+    const category = await Category.findById(req.body.category);
+    if(!category) return res.status(400).json({error: 'category id cannot be found',success: false});
+
+    const product = await Product.findByIdAndUpdate(req.params.id,{
+        name: req.body.name,
+        color: req.body.color,
+        icon: req.body.icon,
+        image: req.body.image,
+    }
+    ,{
+        new: true
+    }
+    );
+
+    if(!product)
+        return res.status(500).send('The product cannotbe update!')
+    
+
+    return res.status(200).send(product)
+})
+
+router.delete(`/:id`,async(req,res)=>{
+    Product.findByIdAndDelete(req.params.id).then(product =>{
+        if(product){
+            return res.status(200).json({
+                success: true,
+                message: 'The product deleted successfully'
+            })
+        }else{
+            return res.status(404).json({
+                success: false,
+                message: 'The product not found'
+            })
+        }
+    }).catch(err=>{
+        return res.status(400).json({
+            success: false,
+            message:err
+        })
+    })
 })
 
 router.post(`/`,async(req,res)=>{
