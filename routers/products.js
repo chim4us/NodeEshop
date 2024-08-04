@@ -4,26 +4,51 @@ const {Product} = require('../models/product');
 const {Category} = require('../models/category');
 const mongoose = require('mongoose');
 
-router.get(`/`,async (req,res)=>{
-    let filter ={};
-    if(req.query.categories){
-        filter = {category: req.query.categories.slipt(',')};
-    }
-    //with this your returning everything on the database
-    //const productList = await Product.find();
+// router.get(`/`,async (req,res)=>{
+//     let filter = {};
+//     if(req.query.categories){
+//         filter = {category: req.query.categories.split(',')}
+//     }
+//     //with this your returning everything on the database
+//     //const productList = await Product.find();
 
-    //with this your returning everything on the database
-    const productList = await Product.find({filter}).populate('category');
+//     //with this your returning everything on the database
+//     //const productList = await Product.find({...filter}).populate('category');
+//     const productList = await Product.find({filter});
 
-    //to select only specified fields. with -_id your excluding the id
-    //const productList = await Product.find().select('name image -_id').populate('category');
-    if(!productList){
-        res.status(500).json({
-            success: false
-        })
+//     //to select only specified fields. with -_id your excluding the id
+//     //const productList = await Product.find().select('name image -_id').populate('category');
+//     if(!productList){
+//         res.status(500).json({
+//             success: false
+//         })
+//     }
+//     res.status(200).send(productList)
+// })
+
+router.get(`/`, async (req, res) => {
+    let filter = {};
+    if (req.query.categories) {
+        try {
+            const categoryIds = req.query.categories.split(',').map(id => mongoose.Types.ObjectId(id));
+            filter = { category: { $in: categoryIds } };
+        } catch (error) {
+            return res.status(400).json({ success: false, message: 'Invalid category IDs provided.' });
+        }
     }
-    res.status(200).send(productList)
-})
+
+    try {
+        const productList = await Product.find(filter).populate('category');
+
+        if (!productList) {
+            return res.status(500).json({ success: false });
+        }
+
+        res.status(200).send(productList);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 
 router.get(`/:id`,async (req,res)=>{
