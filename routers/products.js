@@ -30,10 +30,12 @@ router.get(`/`, async (req, res) => {
     let filter = {};
     if (req.query.categories) {
         try {
-            const categoryIds = req.query.categories.split(',').map(id => mongoose.Types.ObjectId(id));
+            //const categoryIds = req.query.categories.split(',').map(id => mongoose.Types.ObjectId(id));
+            const categoryIds = req.query.categories.split(',').map(id => new mongoose.Types.ObjectId(id));
             filter = { category: { $in: categoryIds } };
         } catch (error) {
-            return res.status(400).json({ success: false, message: 'Invalid category IDs provided.' });
+            console.log(error)
+            return res.status(400).json({ success: false, message: 'Invalid category IDs provided.',errormsg:error });
         }
     }
 
