@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors')
 require('dotenv/config');
+const authJwt = require('./helpers/jwt');
 
 app.use(cors());
 app.options('*',cors());
@@ -15,6 +16,9 @@ const dbConne = process.env.CONNECTION_STRING;
 //middleware 
 app.use(bodyParser.json())
 app.use(morgan('tiny'));
+app.use(authJwt());
+
+//
 
 //Routers
 const productsRouter = require('./routers/products');
@@ -23,6 +27,7 @@ const usersRoutes = require('./routers/users');
 app.use(`${api}/products`, productsRouter);
 app.use(`${api}/categories`, categoriesRoutes);
 app.use(`${api}/users`, usersRoutes);
+
 
 mongoose.connect(dbConne,{
     useNewUrlParser : true,

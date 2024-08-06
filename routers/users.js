@@ -1,12 +1,9 @@
 //const {User} = require('express');
 const express = require('express');
 const router = express.Router();
-
-
-const {Product} = require('../models/product');
 const {User} = require('../models/user');
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 router.get(`/`, async (req, res) => {
     
@@ -18,6 +15,30 @@ router.get(`/`, async (req, res) => {
 
     res.status(200).send(userlist);
     
+});
+
+router.post(`/login`, async (req,res)=>{
+    const user = await User.findOne({email: req.body.email})
+    const secret = process.env.secret;
+
+    if(!user){
+        return res.status(400).json({
+            success: false,
+            message: 'The user not found'
+        });
+    }
+    
+    if(user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+        const token = jwt.sign({
+            userId: user.id
+        },
+        secret,
+        {expiresIn : '1d'}
+        )
+        return res.status(200).json({user: user.email, token: token});
+    }else{
+        return res.status(400).json({success: false, message: 'password is wrong!'})
+    }
 });
 
 router.get(`/:id`,async (req,res)=>{
@@ -32,19 +53,6 @@ router.get(`/:id`,async (req,res)=>{
 
     return res.status(200).send(user)
 })
-
-router.post(`/login`, async (req,res)=>{
-    const user = await User.findOne({email: req.body.email})
-
-    if(!user){
-        return res.status(400).json({
-            success: false,
-            message: 'The user not found'
-        })
-    }
-
-    return res.status(200).send(user)
-});
 
 router.post(`/`,async(req,res)=>{
     //let passwordHash = await bcrypt.hashSync(req.body.password,10);
