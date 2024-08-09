@@ -11,7 +11,7 @@ const errorHandler = require('./helpers/error-handler')
 app.use(cors());
 app.options('*',cors());
 
-const api = process.env.API_URL;
+//const api = process.env.API_URL;
 const dbConne = process.env.CONNECTION_STRING;
 
 //middleware 
@@ -26,9 +26,14 @@ app.use(errorHandler);
 const productsRouter = require('./routers/products');
 const categoriesRoutes = require('./routers/categories');
 const usersRoutes = require('./routers/users');
+const ordersRoutes = require('./routers/orders');
+
+const api = process.env.API_URL;
+
 app.use(`${api}/products`, productsRouter);
 app.use(`${api}/categories`, categoriesRoutes);
 app.use(`${api}/users`, usersRoutes);
+app.use(`${api}/orders`, ordersRoutes);
 
 
 mongoose.connect(dbConne,{
