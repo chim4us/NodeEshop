@@ -69,7 +69,8 @@ router.post(`/`,async(req,res)=>{
     //         success: false
     //     })
     // })
-})
+    //
+});
 
 router.delete(`/:id`,async(req,res)=>{
     Category.findByIdAndDelete(req.params.id).then(category =>{

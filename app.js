@@ -3,10 +3,10 @@ const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const cors = require('cors')
+const cors = require('cors');
 require('dotenv/config');
 const authJwt = require('./helpers/jwt');
-const errorHandler = require('./helpers/error-handler')
+const errorHandler = require('./helpers/error-handler');
 
 app.use(cors());
 app.options('*',cors());
@@ -20,12 +20,11 @@ app.use(morgan('tiny'));
 app.use(authJwt());
 app.use(errorHandler);
 
-//
-
 //Routers
 const productsRouter = require('./routers/products');
 const categoriesRoutes = require('./routers/categories');
 const usersRoutes = require('./routers/users');
+//const ordersRoutes = require('./routers/orders');
 const ordersRoutes = require('./routers/orders');
 
 const api = process.env.API_URL;
@@ -46,9 +45,6 @@ mongoose.connect(dbConne,{
     console.log(err);
 })
 
-//this server will listen on the port and it will execute tthe fallback function when its successfull connected to the port
 app.listen(3000,()=>{
     console.log('Server running on http://localhost:3000/api/v1/products')
 })
-
-//mongodb+srv://chim4us:<password>@cluster0.dpdrlm6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
