@@ -2,6 +2,7 @@ const {Order} = require('../models/order');
 const express = require('express');
 const router = express.Router();
 const { OrderItem } = require('../models/order-item');
+//const authJwt = require('../helpers/jwt');  
 
 router.get(`/`,async (req,res)=>{
     const orderList = await Order.find()
@@ -69,46 +70,56 @@ router.post(`/`, async (req,res)=>{
     res.send(order);
 });
 
+router.put(`/:id`,async (req,res)=>{
+    const order = await Order.findByIdAndUpdate(
+        req.params.id,{
+            status: req.body.status,
+        }
+    ,{
+        new: true
+    }
+    );
 
-// router.post(`/`, async (req, res) => {
-//     console.log("newOrderItem");
-    
-//     try {
-//         const orderItemsIds = await Promise.all(req.body.orderItemsIds.map(async (orderItem) => {
-//             let newOrderItem = new OrderItem({
-//                 quantity: orderItem.quantity,
-//                 product: orderItem.product
-//             });
+    if(!order){
+        return res.status(500).json({
+            success: false,
+            message: 'The order id not founnd'
+        })
+    }
 
-//             newOrderItem = await newOrderItem.save();
-//             console.log(newOrderItem);
-//             return newOrderItem._id;
-//         }));
+    return res.status(200).send(order)
+});
 
-//         let order = new Order({
-//             orderItems: orderItemsIds,
-//             shippingAddress1: req.body.shippingAddress1,
-//             shippingAddress2: req.body.shippingAddress2,
-//             city: req.body.city,
-//             zip: req.body.zip,
-//             country: req.body.country,
-//             phone: req.body.phone,
-//             status: req.body.status,
-//             totalPrice: req.body.totalPrice,
-//             user: req.body.user,
-//         });
+async function isAdmin(req, res, next) {
+    console.log('req.auth:', req.auth);
+    if (req.auth && req.auth.isAdmin) {
+        next();
+    } else {
+        res.status(403).json({ success: false, message: 'Access denied From Liquid' });
+    }
+}
 
-//         order = await order.save();
-
-//         if (!order) {
-//             return res.status(404).send('Order cannot be saved');
-//         }
-
-//         res.send(order);
-//     } catch (error) {
-//         res.status(500).send('An error occurred while creating the order: ' + error.message);
-//     }
-// });
+//router.delete(`/:id`,authJwt(), isAdmin, async(req,res)=>{
+router.delete(`/:id`, async(req,res)=>{
+    Order.findByIdAndDelete(req.params.id).then(order =>{
+        if(order){
+            return res.status(200).json({
+                success: true,
+                message: 'The order deleted successfully'
+            })
+        }else{
+            return res.status(404).json({
+                success: false,
+                message: 'The order not found'
+            })
+        }
+    }).catch(err=>{
+        return res.status(400).json({
+            success: false,
+            message: err
+        })
+    })
+})
 
 
 module.exports = router;
